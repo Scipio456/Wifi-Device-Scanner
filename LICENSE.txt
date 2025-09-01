@@ -2,10 +2,8 @@ Educational Use Only, No Modification License
 
 Copyright (c) 2025 Scipio
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use the Software solely for non-commercial educational purposes, such as learning, research, or teaching, and to distribute the Software with this license and copyright notice intact, subject to the following conditions:
+This software is provided for educational purposes only. You may use it to scan networks you own or have explicit permission to scan. Unauthorized use may violate applicable laws.
 
-1. The Software may not be modified, adapted, or altered in any way.
-2. The Software may not be used for commercial purposes.
-3. The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+Permission is granted to use this software in its original form for educational purposes. Modification, redistribution, or commercial use is strictly prohibited.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. THE AUTHORS ARE NOT LIABLE FOR ANY DAMAGES OR MISUSE ARISING FROM THE USE OF THIS SOFTWARE.
