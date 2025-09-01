@@ -16,7 +16,7 @@ logging.basicConfig(filename='devices.log', level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 
 def get_network_range():
-    """Detect the local network's IP range (e.g., 192.168.1.0/24)"""
+    """Detect the local network's IP range"""
     try:
         # Get the default interface (e.g., Wi-Fi or hotspot interface)
         interfaces = netifaces.interfaces()
@@ -31,7 +31,7 @@ def get_network_range():
                     ip_parts = ip.split('.')
                     mask_parts = netmask.split('.')
                     network = '.'.join(str(int(ip_parts[i]) & int(mask_parts[i])) for i in range(4))
-                    # Convert netmask to CIDR prefix (e.g., 255.255.255.0 -> /24)
+                    # Convert netmask to CIDR prefix
                     prefix = sum(bin(int(x)).count('1') for x in mask_parts)
                     return f"{network}/{prefix}"
         return None
@@ -44,7 +44,7 @@ def get_arguments():
     """Parse command-line arguments, with optional IP range"""
     parser = argparse.ArgumentParser(description="Network Device Scanner for educational use")
     parser.add_argument("target", nargs='?', default=None, 
-                        help="Target IP or range (e.g., 192.168.1.108 or 192.168.1.0/24). If omitted, auto-detects network range.")
+                        help="Target IP or range If omitted, auto-detects network range.")
     return parser.parse_args()
 
 def get_vendor(mac):
