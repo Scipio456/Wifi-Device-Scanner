@@ -4,8 +4,8 @@ A Python script to discover devices on your local network using ARP scans. For e
 
 ## Features
 - **ARP Scan**: Maps IP addresses to MAC addresses for device discovery.
-- **Dynamic IP Detection**: Auto-detects network range if not specified, ideal for Wi-Fi or hotspots.
-- **Interface Specification**: Requires a network interface (e.g., `en0`, `wlan0`).
+- **Dynamic Detection**: Auto-detects network range and interface if not specified.
+- **Optional Interface**: Specify interface manually with `--iface` or let the script detect it.
 - **Improved Hostname Resolution**: Uses reverse DNS with increased timeout.
 - **Robust Vendor Lookup**: Uses a local OUI database with API fallback to avoid rate limits.
 - **Logging**: Saves detailed debug logs to `devices.log` without identifiable metadata.
@@ -13,21 +13,21 @@ A Python script to discover devices on your local network using ARP scans. For e
 ## Usage
 
 ```bash
-sudo python3 device_scanner.py <your-ip-range> --iface <your-interface>
+sudo python3 device_scanner.py [your-ip-range] [--iface your-interface]
 ```
 
 Examples:
+- Auto-detect range and interface:
+  ```bash
+  sudo python3 device_scanner.py
+  ```
 - Scan a specific range:
   ```bash
-  sudo python3 device_scanner.py 192.168.1.0/24 --iface en0
+  sudo python3 device_scanner.py 192.168.1.0/24
   ```
-- Scan a single IP:
+- Scan a single IP with specific interface:
   ```bash
   sudo python3 device_scanner.py 192.168.1.108 --iface en0
-  ```
-- Auto-detect network range:
-  ```bash
-  sudo python3 device_scanner.py --iface en0
   ```
 
 ## Requirements
@@ -45,7 +45,7 @@ pip3 install scapy requests netifaces certifi urllib3==1.26.18
 ## Finding Parameters
 
 - **IP Range**: Run `ifconfig` (macOS) or `ip addr` (Linux) to find your subnet. Look for `inet` and `netmask`. Example: `192.168.1.0/24`.
-- **Interface**: Run `ifconfig` or `ip link` to find your network interface (e.g., `en0` for Wi-Fi on macOS, `wlan0` for Linux).
+- **Interface**: Run `ifconfig` or `ip link` to find your interface (e.g., `en0` for Wi-Fi on macOS). Not needed if auto-detection works.
 - **Gateway**: Find your gateway with `netstat -rn | grep default` for router admin access.
 
 ## Warnings
@@ -59,12 +59,12 @@ pip3 install scapy requests netifaces certifi urllib3==1.26.18
 If fewer devices are detected (e.g., 2 instead of 3) or hostnames/vendors are "Unknown":
 - **Fewer Devices Detected**:
   - **Client Isolation**: Disable client/AP isolation in your router’s admin panel (e.g., `http://<gateway-ip>`). Common for hotspots.
-  - **Interface**: Verify the correct interface with `ifconfig` or `ip link`. Ensure it matches `--iface` (e.g., `en0`).
-  - **IP Range**: Confirm the IP range covers all devices. Check device IPs with `arp -a` or `ip neigh`.
+  - **Interface**: If auto-detection fails, specify `--iface` (e.g., `--iface en0`). Check with `ifconfig` or `ip link`.
+  - **IP Range**: Confirm the range covers all devices. Check IPs with `arp -a` or `ip neigh`.
   - **Permissions**: Run with `sudo`. Check `/dev/bpf*` usage: `sudo lsof /dev/bpf*`.
   - **Firewalls**: Ensure devices allow ARP responses. Test with `ping <device-ip>` or `nmap -sn <device-ip>`.
   - **Compare with Nmap**: Run `sudo nmap -sn <your-ip-range>` or `sudo nmap -PR -sn <your-ip-range>` to cross-check.
-  - **Wireshark**: Capture traffic with `sudo wireshark -i <your-interface> -k` and filter for `arp`.
+  - **Wireshark**: Capture traffic with `sudo wireshark -i <interface> -k` and filter for `arp`.
 - **Hostname Issues**:
   - Enable router DNS or mDNS in the admin panel (e.g., `http://<gateway-ip>`).
   - Test with `dig -x <device-ip>` or `nslookup <device-ip>`.

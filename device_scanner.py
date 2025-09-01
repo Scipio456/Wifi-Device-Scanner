@@ -5,8 +5,8 @@ For educational use only on networks you own. Modification prohibited.
 
 Features:
 - ARP scan to map IP to MAC addresses.
-- Auto-detects network range if not provided.
-- Requires network interface specification.
+- Auto-detects network range and interface if not provided.
+- Optional interface specification for manual override.
 - Improved hostname resolution with increased timeout.
 - Local OUI database for vendor lookup to avoid API rate limits.
 - Logs results to 'devices.log' without identifiable metadata.
@@ -36,12 +36,41 @@ OUI_DATABASE = {
     # Add more from https://standards.ieee.org/products-services/regauth/oui/
 }
 
+def get_default_interface() -> str:
+    """
+    Detect the network interface connected to the default gateway.
+    Returns: Interface name or None if detection fails.
+    """
+    try:
+        gateways = netifaces.gateways()
+        if 'default' in gateways and netifaces.AF_INET in gateways['default']:
+            gateway_ip, iface = gateways['default'][netifaces.AF_INET]
+            logging.debug(f"Detected default gateway {gateway_ip} on interface {iface}")
+            print(f"Detected interface: {iface} (gateway: {gateway_ip})")
+            return iface
+        else:
+            # Fallback: Check common interfaces
+            for iface in netifaces.interfaces():
+                if iface.startswith(('en', 'wlan', 'eth', 'hotspot')):
+                    addrs = netifaces.ifaddresses(iface)
+                    if netifaces.AF_INET in addrs:
+                        logging.debug(f"Fallback: Using interface {iface} with IPv4 address")
+                        print(f"Fallback: Using interface {iface}")
+                        return iface
+        logging.warning("No default gateway or IPv4 interface found")
+        print("No default gateway or IPv4 interface found")
+        return None
+    except Exception as e:
+        logging.error(f"Failed to detect default interface: {e}")
+        print(f"Error detecting default interface: {e}")
+        return None
+
 def get_network_range(iface: str) -> str:
     """
     Detect the network range for the given interface.
     Args:
-        iface: Network interface (e.g., 'en0').
-    Returns: CIDR notation  or None if detection fails.
+        iface: Network interface.
+    Returns: CIDR notation or None if detection fails.
     """
     try:
         addrs = netifaces.ifaddresses(iface)
@@ -66,7 +95,7 @@ def get_network_range(iface: str) -> str:
 
 def get_arguments() -> argparse.Namespace:
     """
-    Parse command-line arguments for target IP/range and interface.
+    Parse command-line arguments for target IP/range and optional interface.
     Returns: Parsed arguments.
     """
     parser = argparse.ArgumentParser(
@@ -80,8 +109,8 @@ def get_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--iface",
-        required=True,
-        help="Network interface (e.g., en0, wlan0). Use 'ifconfig' or 'ip link' to find."
+        default=None,
+        help="Network interface (e.g., en0, wlan0). If omitted, auto-detects interface. Use 'ifconfig' or 'ip link' to find."
     )
     return parser.parse_args()
 
@@ -188,22 +217,29 @@ def main():
     args = get_arguments()
     start_time = time.time()
     
+    # Use provided interface or auto-detect
+    iface = args.iface if args.iface else get_default_interface()
+    if not iface:
+        print("Error: Could not determine network interface. Please specify --iface or check network connection.")
+        logging.error("Could not determine network interface")
+        return
+    
     # Debug: List available interfaces
     print("Available network interfaces:", netifaces.interfaces())
     logging.debug(f"Available interfaces: {netifaces.interfaces()}")
     
     # Use provided target or auto-detect network range
-    target = args.target if args.target else get_network_range(args.iface)
+    target = args.target if args.target else get_network_range(iface)
     if not target:
-        print(f"Error: Could not determine network range for interface {args.iface}. Please specify a target IP or range.")
-        logging.error(f"Could not determine network range for {args.iface}")
+        print(f"Error: Could not determine network range for interface {iface}. Please specify a target IP or range.")
+        logging.error(f"Could not determine network range for {iface}")
         return
     
     try:
         # Validate IP or range
         if "/" not in target:
             socket.inet_aton(target)  # Validate single IP
-        devices = scan_network(target, args.iface)
+        devices = scan_network(target, iface)
         print(f"\nScan completed in {time.time() - start_time:.2f} seconds")
         print(f"Found {len(devices)} devices:")
         for device in devices:
