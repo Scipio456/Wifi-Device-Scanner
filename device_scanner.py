@@ -105,7 +105,7 @@ def get_arguments() -> argparse.Namespace:
         "target",
         nargs='?',
         default=None,
-        help="Target IP or range (e.g., 192.168.1.0/24 or 192.168.1.108). If omitted, auto-detects network range."
+        help="Target IP or range. If omitted, auto-detects network range."
     )
     parser.add_argument(
         "--iface",

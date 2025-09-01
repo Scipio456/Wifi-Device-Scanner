@@ -23,11 +23,11 @@ Examples:
   ```
 - Scan a specific range:
   ```bash
-  sudo python3 device_scanner.py 192.168.1.0/24
+  sudo python3 device_scanner.py <your-ip-range>
   ```
 - Scan a single IP with specific interface:
   ```bash
-  sudo python3 device_scanner.py 192.168.1.108 --iface en0
+  sudo python3 device_scanner.py <your-ip-address> --iface <your-interface>
   ```
 
 ## Requirements
@@ -44,8 +44,8 @@ pip3 install scapy requests netifaces certifi urllib3==1.26.18
 
 ## Finding Parameters
 
-- **IP Range**: Run `ifconfig` (macOS) or `ip addr` (Linux) to find your subnet. Look for `inet` and `netmask`. Example: `192.168.1.0/24`.
-- **Interface**: Run `ifconfig` or `ip link` to find your interface (e.g., `en0` for Wi-Fi on macOS). Not needed if auto-detection works.
+- **IP Range**: Run `ifconfig` (macOS) or `ip addr` (Linux) to find your subnet. Look for `inet` and `netmask`. Example: `<your-ip-address>`.
+- **Interface**: Run `ifconfig` or `ip link` to find your interface (e.g., `<your-interface>` for Wi-Fi on macOS). Not needed if auto-detection works.
 - **Gateway**: Find your gateway with `netstat -rn | grep default` for router admin access.
 
 ## Warnings
@@ -59,7 +59,7 @@ pip3 install scapy requests netifaces certifi urllib3==1.26.18
 If fewer devices are detected (e.g., 2 instead of 3) or hostnames/vendors are "Unknown":
 - **Fewer Devices Detected**:
   - **Client Isolation**: Disable client/AP isolation in your router’s admin panel (e.g., `http://<gateway-ip>`). Common for hotspots.
-  - **Interface**: If auto-detection fails, specify `--iface` (e.g., `--iface en0`). Check with `ifconfig` or `ip link`.
+  - **Interface**: If auto-detection fails, specify `--iface` (e.g., `--iface <your-interface>`). Check with `ifconfig` or `ip link`.
   - **IP Range**: Confirm the range covers all devices. Check IPs with `arp -a` or `ip neigh`.
   - **Permissions**: Run with `sudo`. Check `/dev/bpf*` usage: `sudo lsof /dev/bpf*`.
   - **Firewalls**: Ensure devices allow ARP responses. Test with `ping <device-ip>` or `nmap -sn <device-ip>`.
