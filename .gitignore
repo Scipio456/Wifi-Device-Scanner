@@ -1,9 +1,27 @@
-**pycache**/ \*.pyc \*.pyo \*.pyd .Python env/ venv/ ENV/ \*.egg-info/ \*.egg
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+*.egg
 
-devices.log port_scan.log
+devices.log
+port_scan.log
 
-.vscode/ .idea/ \*.sublime-project \*.sublime-workspace
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
 
-.DS_Store Thumbs.db \*.swp \*.bak \*.tmp
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*.tmp
 
-.env .envrc
+.env
+.envrc

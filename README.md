@@ -1,14 +1,14 @@
 # Network Device Scanner
 
-A Python script to discover devices on your local network using ARP, ICMP, and TCP scans. For educational purposes only. Modification of this software is prohibited.
+A Python script to discover devices on your local network using ARP scans. For educational purposes only. Modification of this software is prohibited.
 
 ## Features
 - **ARP Scan**: Maps IP addresses to MAC addresses for device discovery.
-- **ICMP Scan**: Uses ping to detect devices not responding to ARP.
-- **TCP Scan**: Checks common ports (e.g., SSH, HTTP, HTTPS) for active services.
 - **Dynamic IP Detection**: Auto-detects network range if not specified, ideal for Wi-Fi or hotspots.
 - **Interface Specification**: Requires a network interface (e.g., `en0`, `wlan0`).
-- **Logging**: Saves results to `devices.log` without identifiable metadata.
+- **Improved Hostname Resolution**: Uses reverse DNS with increased timeout.
+- **Robust Vendor Lookup**: Uses a local OUI database with API fallback to avoid rate limits.
+- **Logging**: Saves detailed debug logs to `devices.log` without identifiable metadata.
 
 ## Usage
 
@@ -34,12 +34,13 @@ Examples:
 
 Install dependencies:
 ```bash
-pip3 install scapy requests netifaces
+pip3 install scapy requests netifaces certifi urllib3==1.26.18
 ```
 
 - Requires Python 3.6+.
-- Must run with `sudo` due to raw socket access for ARP and TCP scans.
+- Must run with `sudo` due to raw socket access for ARP scans.
 - macOS/Linux only (Windows requires additional configuration).
+- Optional: Download full OUI database from `https://standards.ieee.org/products-services/regauth/oui/` for offline vendor lookup.
 
 ## Finding Parameters
 
@@ -55,13 +56,24 @@ pip3 install scapy requests netifaces
 
 ## Troubleshooting
 
-If fewer devices are detected than expected:
-- **Check Router Settings**: Disable client/AP isolation in your router’s admin panel (e.g., `http://<gateway-ip>`).
-- **Device Firewalls**: Ensure devices allow ICMP (ping) or TCP responses. Test with `ping <device-ip>`.
-- **Correct Parameters**: Verify IP range and interface match your network. Use `ifconfig` or `ip addr`.
-- **Compare with Nmap**: Run `sudo nmap -sn <your-ip-range>` or `sudo nmap -PR -sn <your-ip-range>` to cross-check.
-- **Debug with Wireshark**: Capture traffic with `sudo wireshark -i <your-interface> -k` and filter for `arp or icmp or tcp.port in {22 80 443 3389 8080}`.
-- **Check Logs**: Review `devices.log` for errors or raw packet data.
+If fewer devices are detected (e.g., 2 instead of 3) or hostnames/vendors are "Unknown":
+- **Fewer Devices Detected**:
+  - **Client Isolation**: Disable client/AP isolation in your router’s admin panel (e.g., `http://<gateway-ip>`). Common for hotspots.
+  - **Interface**: Verify the correct interface with `ifconfig` or `ip link`. Ensure it matches `--iface` (e.g., `en0`).
+  - **IP Range**: Confirm the IP range covers all devices. Check device IPs with `arp -a` or `ip neigh`.
+  - **Permissions**: Run with `sudo`. Check `/dev/bpf*` usage: `sudo lsof /dev/bpf*`.
+  - **Firewalls**: Ensure devices allow ARP responses. Test with `ping <device-ip>` or `nmap -sn <device-ip>`.
+  - **Compare with Nmap**: Run `sudo nmap -sn <your-ip-range>` or `sudo nmap -PR -sn <your-ip-range>` to cross-check.
+  - **Wireshark**: Capture traffic with `sudo wireshark -i <your-interface> -k` and filter for `arp`.
+- **Hostname Issues**:
+  - Enable router DNS or mDNS in the admin panel (e.g., `http://<gateway-ip>`).
+  - Test with `dig -x <device-ip>` or `nslookup <device-ip>`.
+  - Check `devices.log` for `socket.herror` errors.
+- **Vendor Issues**:
+  - Test API: `curl https://api.macvendors.com/00:14:22:01:23:45`. If it fails, check internet or rate limits.
+  - Expand local OUI database with `oui.txt` from `https://standards.ieee.org/products-services/regauth/oui/`.
+- **macOS LibreSSL Warning**: If you see a `NotOpenSSLWarning`, ensure `urllib3==1.26.18` is installed.
+- **Logs**: Review `devices.log` for detailed errors (set to DEBUG level).
 - **Hotspot Issues**: Some hotspots isolate clients. Test with a different network or disable isolation.
 
 ## License
