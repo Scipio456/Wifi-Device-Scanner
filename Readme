@@ -1,3 +1,4 @@
+@ -1,81 +0,0 @@
 # Network Device Scanner
 
 A Python script to discover devices on your local network using ARP scans. For educational purposes only. Modification of this software is prohibited.
